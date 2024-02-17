@@ -27,38 +27,38 @@
 <div class="d-flex flex-column flex-shrink-0 p-3" style="background-color: goldenrod; width: 100%" >
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
       <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
-      <span class="fs-4">Sidebar</span>
+      <span class="fs-4">仪表盘</span>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
       <li class="nav-item">
         <a href="#" class="nav-link active" aria-current="page">
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
-          Home
+          介绍
         </a>
       </li>
       <li>
         <a href="#" class="nav-link text-white">
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
-          Dashboard
+          功能1
         </a>
       </li>
       <li>
         <a href="#" class="nav-link text-white">
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#table"/></svg>
-          Orders
+          功能2
         </a>
       </li>
       <li>
         <a href="#" class="nav-link text-white">
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"/></svg>
-          Products
+          功能3
         </a>
       </li>
       <li>
         <a href="#" class="nav-link text-white">
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg>
-          Customers
+          功能4
         </a>
       </li>
     </ul>
@@ -67,11 +67,11 @@
     <div class="dropdown">
       <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
         <img src="/static/img/id.png" alt="" width="32" height="32" class="rounded-circle me-2">
-        <strong>Alfred</strong>
+        <strong>{{ username }}</strong>
       </a>
       <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
         <li><a class="dropdown-item" href="#">新建查询</a></li>
-        <li><a class="dropdown-item" href="#">个人信息</a></li>
+        <li><a class="dropdown-item" href="/home/person">个人信息</a></li>
         <!--li><a class="dropdown-item" href="#"></a></li-->
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="#">登出</a></li>

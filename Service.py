@@ -80,6 +80,9 @@ class UserService(DataBaseService):
     def getUser(cls,user : User):
         return cls.select(conditions=((" == ",user.model.username),)).fetchone() 
     @classmethod 
+    def getUserByName(cls,username : str):
+        return cls.select(conditions=((" == ",username),)).fetchone()
+    @classmethod 
     def updateUser(cls,user : User):
         cls.update(values=user.items(),conditions=((" == ",user.username),))
     @classmethod 

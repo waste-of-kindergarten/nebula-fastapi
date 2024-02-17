@@ -141,11 +141,14 @@ async def login(request : Request):
 @app.get("/home",response_class=HTMLResponse,dependencies=[Depends(cookie)])
 async def home(request : Request , session_data: SessionData = Depends(verifier)):
     if session_data.access == "permmit":
-        return templates.TemplateResponse(request=request,name="home.html")
+        return templates.TemplateResponse(request=request,name="home.html",context={ "username" : session_data.username})
     else:
         return RedirectResponse("/login/failure")
-    #return session_data
-    #return templates.TemplateResponse(request=request,name="home.html")
+
+@app.get("/home/person",response_class=HTMLResponse,dependencies=[Depends(cookie)])
+async def home_person(request : Request, session_data: SessionData = Depends(verifier)):
+    user = UserService.getUserByName(session_data.username)
+    return templates.TemplateResponse(request=request,name="person.html",context=dict(zip(User_Entity.keys(),user)))
 
 @app.post("/login")
 async def login(user : Validation,response:Response):
