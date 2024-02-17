@@ -39,7 +39,7 @@
               <a href="/forget" class="text-decoration-none">忘记密码?</a>
             </div>
             <div class="mb-3 text-right col">
-              <a href="/login" class="text-decoration-none">还没有账号，立即注册</a>
+              <a href="/register" class="text-decoration-none">还没有账号，立即注册</a>
             </div>
             </div>
             {% if info %}
@@ -82,10 +82,10 @@ function submitForm(event) {
             body: jsonFormData
         }).then(response => {
             console.log(response)
-            if (response.redirected) {
-                window.location.href = response.url; // Redirect to the URL specified in the response
-            } else {
-                window.localtion.href = "/login/failure"; 
+            if (response.redirected){
+              window.location.href = response.url;
+            }else{
+                window.location.href = "/home"; // Redirect to the URL specified in the response
             }
         })    .then(data => console.log(data))
         .catch(error => console.error(error)) // Add catch block to handle error

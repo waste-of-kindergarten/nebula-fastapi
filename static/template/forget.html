@@ -48,7 +48,36 @@
       </div>
 
 </body>
+
 <script>
+function submitForm(event) {
+      event.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const password_new = document.getElementById("password_new").value;
+      console.log("Username: ", username);
+      console.log("Password: ", password);
+      console.log("Password_New: ",password_new);
+      const formData = {username: username, password : password , password_new : password_new};
+      const jsonFormData = JSON.stringify(formData);
+      console.log("JSON Form Data: ", jsonFormData);
+      // Add code to submit form data to server here
+       fetch('/forget', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: jsonFormData
+      }).then(response => {
+          if (response.redirected) {
+              window.location.href = response.url; // Redirect to the URL specified in the response
+          } else {
+              alert("服务器没有回复");
+          }
+      })    .then(data => console.log(data))
+      .catch(error => console.error(error)) // Add catch block to handle error
+  }
+
     function sendVerify(event) {
       event.preventDefault(); // 拒绝默认事件触发
       const username = document.getElementById("username").value;

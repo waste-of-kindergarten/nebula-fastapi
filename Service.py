@@ -18,7 +18,7 @@ def initDataBase():
     conn.commit()
 
 def clearDataBase():
-    cursor.execute("Drop Table User")
+    cursor.execute("Drop Table if exists User")
 
 class DataBaseService:
     entity = None
@@ -31,7 +31,7 @@ class DataBaseService:
         if conditions != ():
             cursor.execute("Delete From %s Where %s"%(cls.entity.__str__(),
                                                                (" And ".join([(cls.entity.keys()[k] + " " + val[0] + " " + (str(val[1]) if type(val[1]) != str else '"' + val[1] + '"'))
-                                                                    for k,val in enumerate(conditions) if val]))))
+                                                                    for k,val in enumerate(conditions) if val is not None]))))
             conn.commit()
         else:
             cursor.execute("Delete From %s"%cls.entity.__str__())
@@ -41,17 +41,22 @@ class DataBaseService:
         if conditions != ():
             return cursor.execute("Select * From %s Where %s"%(cls.entity.__str__(),
                                                                   (" And ".join([(cls.entity.keys()[k] + " " + val[0] + " " + (str(val[1]) if type(val[1]) != str else '"' + val[1] + '"'))
-                                                                        for k,val in enumerate(conditions) if val]))))
+                                                                        for k,val in enumerate(conditions) if val is not None ]))))
         else:
             return cursor.execute("Select * From %s"%cls.entity.__str__())
     @classmethod
     def update(cls,values,conditions = ()):
         if conditions != ():
+            print("Update %s Set %s Where %s"%(cls.entity.__str__(),
+                                            (" , ".join([cls.entity.keys()[k] + " = " + (str(val) if (type(val) != str) else '"' + val + '"')
+                                                           for k,val in enumerate(values) if val is not None])),
+                                            (" And ".join([cls.entity.keys()[k] + " " + str(val[0]) + " " + (str(val[1]) if type(val[1]) != str else '"' + val[1] + '"') 
+                                                           for k,val in enumerate(conditions) if val[1] is not None]))))
             cursor.execute("Update %s Set %s Where %s"%(cls.entity.__str__(),
                                             (" , ".join([cls.entity.keys()[k] + " = " + (str(val) if (type(val) != str) else '"' + val + '"')
-                                                           for k,val in enumerate(values) if val])),
+                                                           for k,val in enumerate(values) if val is not None])),
                                             (" And ".join([cls.entity.keys()[k] + " " + str(val[0]) + " " + (str(val[1]) if type(val[1]) != str else '"' + val[1] + '"') 
-                                                           for k,val in enumerate(conditions) if val[1]]))))     
+                                                           for k,val in enumerate(conditions) if val[1] is not None]))))     
             conn.commit()
         else:
             cursor.execute("Update %s Set %s"%(cls.entity.__str__(),
@@ -80,17 +85,27 @@ class UserService(DataBaseService):
     @classmethod 
     def fetchUserPassword(cls,username):
         result = cls.select(conditions=((" == ",username),)).fetchone()
-        if result: 
+        if not result: 
             return None 
         else:
-            return result
+            return result[1]
+    @classmethod
+    def updateUserPassword(cls,username,password_new):
+        user = cls.select(conditions=((" == ",username),)).fetchone()
+        if not user:
+            user = list(user)
+            user[1] = password_new
+            user = tuple(user)
+            cls.update(values=user,conditions=((" == ",username),))
+            return True 
+        else:
+            return False
+
     @classmethod
     def fetchUserPrivilege(cls,username):
-        result = cls.select(conditions=((" == ",username),)).fetchone()
-        if result is None:
-            return "R" # Refuse 
-        elif result == ():
-            return None # None
+        result = cls.select(conditions=((" == ",username),)).fetchone() 
+        if not result:
+            return "R" # Refuse
         else:
             return result[3]
     @classmethod
@@ -99,7 +114,16 @@ class UserService(DataBaseService):
         if result == ():
             return None 
         else:
-            result[3] = False
+            result = list(result)
+            result[3] = False 
+            result = tuple(result)
+            #print(result)
             cls.update(values=result,conditions=((" == ",username),))
-
+    @classmethod 
+    def fetchUserEmail(cls,username):
+        result = cls.select(conditions=((" == ",username),)).fetchone()
+        if not result:
+            return "R"
+        else:
+            return result[2]
     
