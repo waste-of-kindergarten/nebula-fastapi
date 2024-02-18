@@ -37,8 +37,8 @@
     <label for="introduction" class="form-label">个人简介</label>
     <input type="text" class="form-control" id="introduction" value="{{ introduction }}" readonly>
   </div>
-  <button type="button" class="btn btn-primary" onclick="enableInputs()">更新</button>
-  <button type="button" class="btn btn-primary" onclick="submitForm()" disabled>提交</button>
+  <button type="button" class="btn btn-primary" id="update" onclick="enableInputs()">更新</button>
+  <button type="button" class="btn btn-primary" id="submit" onclick="submitForm()" disabled>提交</button>
 </div>
 
 
@@ -49,20 +49,43 @@
 </body>
 <script>
  function enableInputs() {
-    document.getElementById('name').readOnly = false;
+    document.getElementById('name').readOnly = true;
     document.getElementById('email').readOnly = false;
     document.getElementById('phone').readOnly = false;
     document.getElementById('address').readOnly = false;
     document.getElementById('introduction').readOnly = false;
     
-    document.getElementById('name').focus(); // Focus on the first input field after enabling
-    document.querySelector('button[type="button"]').disabled = true; // Disable the update button
-    document.querySelectorAll('button[type="button"]')[1].disabled = false; // Enable the submit button
+    document.getElementById('email').focus(); // Focus on the first input field after enabling
+    document.getElementById('update').disabled = true;
+    document.getElementById('submit').disabled = false;
+    //document.querySelector('button[type="button"]').disabled = true; // Disable the update button
+    //document.querySelectorAll('button[type="button"]')[1].disabled = false; // Enable the submit button
   }
 
   function submitForm() {
     // Here you can add code to submit the form
-    alert('Form submitted successfully!');
+    const username = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const address = document.getElementById('address').value;
+    const introduction = document.getElementById('introduction').value;
+    const formData = {username:username,email:email,phone:phone,address:address, introduction:introduction}
+    const jsonFormData = JSON.stringify(formData);
+    fetch('/home/person', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonFormData
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                alert('提交成功');
+                window.location.href = "/home/person"; // Redirect to the URL specified in the response
+            }
+        })    .then(data => console.log(data))
+        .catch(error => console.error(error)) // Add catch block to handle error
   }
 </script>
 </html>

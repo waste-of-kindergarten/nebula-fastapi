@@ -1,0 +1,56 @@
+<div class="bd-sidebar col-md-3" style="min-width: 20%;display: flex;">
+    <div class="d-flex flex-column flex-shrink-0 p-3" style="background-color: goldenrod; width: 100%" >
+        <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+          <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
+          <span class="fs-4">仪表盘</span>
+        </a>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a href="/home" class="{{ p[0] }}" aria-current="page">
+              <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
+              介绍
+            </a>
+          </li>
+          <li>
+            <a href="#" class="{{ p[1] }}">
+              <svg class="bi me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
+              功能1
+            </a>
+          </li>
+          <li>
+            <a href="#" class="{{ p[2] }}">
+              <svg class="bi me-2" width="16" height="16"><use xlink:href="#table"/></svg>
+              功能2
+            </a>
+          </li>
+          <li>
+            <a href="#" class="{{ p[3] }}">
+              <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"/></svg>
+              功能3
+            </a>
+          </li>
+          <li>
+            <a href="#" class="{{ p[4] }}">
+              <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg>
+              功能4
+            </a>
+          </li>
+        </ul>
+        <br><br><br><br><br><br>
+        <hr>
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="/static/img/id.png" alt="" width="32" height="32" class="rounded-circle me-2">
+            <strong>{{ username }}</strong>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="#">新建查询</a></li>
+            <li><a class="dropdown-item" href="/home/person">个人信息</a></li>
+            <!--li><a class="dropdown-item" href="#"></a></li-->
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout">登出</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>

@@ -2,6 +2,8 @@ from fastapi import Depends, FastAPI, Request,Cookie , HTTPException, Response
 from fastapi.responses import HTMLResponse,RedirectResponse 
 from fastapi.staticfiles import StaticFiles 
 from fastapi.templating import Jinja2Templates
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Union
 from typing_extensions import Annotated
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
@@ -22,7 +24,6 @@ from email.mime.multipart import MIMEMultipart
 class SessionData(BaseModel):
     username: str
     access : str
-
 
 cookie_params = CookieParameters()
 
@@ -77,6 +78,7 @@ verifier = BasicVerifier(
     auto_error=True,
     backend=backend,
     auth_http_exception=HTTPException(status_code=403, detail="invalid session"),
+
 )
 
 
@@ -86,6 +88,22 @@ verifier = BasicVerifier(
 app = FastAPI()
 app.mount("/static",StaticFiles(directory="static"),name="static")
 templates = Jinja2Templates(directory="./static/template")
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request,exc):
+    return RedirectResponse("/404")
+
+
+async def validation_exception_handler(request, exc : RequestValidationError):
+    return RedirectResponse("/login")
+
+app.add_exception_handler(RequestValidationError,validation_exception_handler)
+
+
+@app.get("/404",response_class=HTMLResponse)
+async def _404(request : Request):
+    return templates.TemplateResponse(request=request,name="404.html")
 
 @app.get("/",response_class=HTMLResponse)
 async def hello(request : Request):
@@ -141,7 +159,7 @@ async def login(request : Request):
 @app.get("/home",response_class=HTMLResponse,dependencies=[Depends(cookie)])
 async def home(request : Request , session_data: SessionData = Depends(verifier)):
     if session_data.access == "permmit":
-        return templates.TemplateResponse(request=request,name="home.html",context={ "username" : session_data.username})
+        return templates.TemplateResponse(request=request,name="home.html",context={ "username" : session_data.username, "p":["nav-link active","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white"]})
     else:
         return RedirectResponse("/login/failure")
 
@@ -149,6 +167,26 @@ async def home(request : Request , session_data: SessionData = Depends(verifier)
 async def home_person(request : Request, session_data: SessionData = Depends(verifier)):
     user = UserService.getUserByName(session_data.username)
     return templates.TemplateResponse(request=request,name="person.html",context=dict(zip(User_Entity.keys(),user)))
+
+@app.post("/home/person",response_class=HTMLResponse,dependencies=[Depends(cookie)])
+async def home_person(person : Person , request : Request, session_data : SessionData = Depends(verifier)):
+    if session_data.username == person.username:
+        username = person.username 
+        user = UserService.getUserByName(username)
+        #print(user)
+        newuser = User(username = user[0],
+                    password = user[1],
+                    email = person.email,
+                    privilege = user[3],
+                    address = person.address,
+                    phone = person.phone,
+                    introduction = person.introduction)
+        #print(newuser)
+        euser = User_Entity(newuser)
+        UserService.updateUser(euser)
+    
+
+
 
 @app.post("/login")
 async def login(user : Validation,response:Response):
@@ -231,8 +269,8 @@ async def whoami(session_data: SessionData = Depends(verifier)):
     return session_data
 
 
-@app.post("/delete_session")
+@app.get("/logout")
 async def del_session(response: Response, session_id: UUID = Depends(cookie)):
     await backend.delete(session_id)
     cookie.delete_from_response(response)
-    return "deleted session"
+    return RedirectResponse("/login")

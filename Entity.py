@@ -28,12 +28,18 @@ class Validation_Entity(EntityModel):
     def items(self):
         return [self.model.username,self.model.password]
 
+class Person(BaseModel):
+    username : str 
+    email : str 
+    address : str 
+    phone : Optional[str] = None 
+    introduction : Optional[str] = None
  
 class User(BaseModel):
     username: str
     password: str 
     email: str 
-    privilege: Optional[str] = None
+    privilege: Optional[bool] = None
     address: Optional[str] = None 
     phone: Optional[str] = None 
     introduction: Optional[str] = None

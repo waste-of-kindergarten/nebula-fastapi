@@ -47,11 +47,6 @@ class DataBaseService:
     @classmethod
     def update(cls,values,conditions = ()):
         if conditions != ():
-            print("Update %s Set %s Where %s"%(cls.entity.__str__(),
-                                            (" , ".join([cls.entity.keys()[k] + " = " + (str(val) if (type(val) != str) else '"' + val + '"')
-                                                           for k,val in enumerate(values) if val is not None])),
-                                            (" And ".join([cls.entity.keys()[k] + " " + str(val[0]) + " " + (str(val[1]) if type(val[1]) != str else '"' + val[1] + '"') 
-                                                           for k,val in enumerate(conditions) if val[1] is not None]))))
             cursor.execute("Update %s Set %s Where %s"%(cls.entity.__str__(),
                                             (" , ".join([cls.entity.keys()[k] + " = " + (str(val) if (type(val) != str) else '"' + val + '"')
                                                            for k,val in enumerate(values) if val is not None])),
@@ -74,17 +69,17 @@ class UserService(DataBaseService):
         else: 
             return False
     @classmethod 
-    def registerUser(cls,user : User):
+    def registerUser(cls,user : User_Entity):
         cls.insert(values=user.items())
     @classmethod
-    def getUser(cls,user : User):
+    def getUser(cls,user : User_Entity):
         return cls.select(conditions=((" == ",user.model.username),)).fetchone() 
     @classmethod 
     def getUserByName(cls,username : str):
         return cls.select(conditions=((" == ",username),)).fetchone()
     @classmethod 
-    def updateUser(cls,user : User):
-        cls.update(values=user.items(),conditions=((" == ",user.username),))
+    def updateUser(cls,user : User_Entity):
+        cls.update(values=user.items(),conditions=((" == ",user.model.username),))
     @classmethod 
     def fetchUserPassword(cls,username):
         result = cls.select(conditions=((" == ",username),)).fetchone()
