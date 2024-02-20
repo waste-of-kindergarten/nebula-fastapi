@@ -22,6 +22,10 @@ class ForgetValidation(BaseModel):
     password: str 
     password_new : str
 
+class ChangePasswordValidation(BaseModel):
+    password : str 
+    password_new : str
+
 class Validation_Entity(EntityModel):
     def __init__(self,model : Validation):
         super().__init__(model)

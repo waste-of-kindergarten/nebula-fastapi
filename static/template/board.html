@@ -1,37 +1,95 @@
+<style>
+  /* Custom styles for this template */
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  .typing-effect {
+    overflow: hidden;
+    border-right: .15em solid orange; /* 动画效果，可根据需要修改颜色和粗细 */
+    white-space: nowrap;
+    margin: 0 auto; /* 居中显示 */
+    animation: typing 5s steps(40, end), blink-caret .75s step-end infinite; /* 修改动画时间和步数 */
+  }
+
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: orange; }
+  }
+</style>
 <div class="row">
-    <img src="https://via.placeholder.com/1200x300" class="img-fluid" alt="Banner Image">
+    <img src="/static/img/logo.png" class="img-fluid" alt="Banner Image">
   </div>
-      <h1 class="mb-4 text-light">Welcome to our website!</h1>
+      <center><h1 class="mb-4 typing-effect text-secondary">欢迎来到 Nebula Space</h1></center>
       
       <div class="row row-cols-1 row-cols-md-3 g-4">
         <div class="col">
           <div class="card h-100 bg-light">
-            <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
+            <center>
+            <div style="width:100%;height:100%;">
+            <img src="https://docs.nebula-graph.com.cn/assets/images/favicon.ico" class="card-img-top"  alt="...">
+            </div>
+            </center>
             <div class="card-body">
-              <h5 class="card-title">Card 1</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <h5 class="card-title">Nebulagraph</h5>
+              <p class="card-text">NebulaGraph 是一款开源的、分布式的、易扩展的原生图数据库，能够承载包含数千亿个点和数万亿条边的超大规模数据集，并且提供毫秒级查询。</p>
+              <br><br><br>
+              <a href="https://docs.nebula-graph.com.cn/3.4.0/1.introduction/1.what-is-nebula-graph/" class="btn btn-primary">了解更多</a>
             </div>
           </div>
         </div>
         <div class="col">
           <div class="card h-100 bg-light">
-            <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
+            <center>
+            <div style="width:100%; height: 100%;">
+              <br><br>
+            <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.tAYe9Tr8fY1AbTRYHuESUgHaFO?rs=1&pid=ImgDetMain"  class="card-img-top" alt="...">
+          </div>
+          </center>
+          <br><br>
             <div class="card-body">
-              <h5 class="card-title">Card 2</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <h5 class="card-title">Haskell</h5>
+              <p class="card-text">Haskell是一种高级的纯函数式编程语言。它是一个经过二十多年前沿研究的开源产品，可以快速开发健壮、简洁、正确的软件。Haskell强有力地支持与其他语言的集成、内置的并发性和并行性、调试器、分析器、丰富的库和活跃的社区，使它更容易生成灵活、可维护、高质量的软件。</p>
+              <a href="https://www.haskell.org/" class="btn btn-primary">了解更多</a>
             </div>
           </div>
         </div>
         <div class="col">
           <div class="card h-100 bg-light">
-            <img src="https://via.placeholder.com/300" class="card-img-top" alt="...">
+            <img src="https://fastapi.tiangolo.com/img/icon-white.svg" style="background-color: cadetblue;" class="card-img-top" alt="...">
             <div class="card-body">
-              <h5 class="card-title">Card 3</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <h5 class="card-title">FastAPI</h5>
+              <p class="card-text">FastAPI是一个现代，快速(高性能)的web框架，用于基于标准Python类型提示使用Python 3.8+构建api。</p>
+              <br><br><br><br>
+              <a href="https://fastapi.tiangolo.com/zh/" class="btn btn-primary">了解更多</a>
             </div>
           </div>
         </div>
       </div>
+      <script>
+        // 获取打字机效果的元素
+        var titleElement = document.querySelector('.typing-effect');
+      
+        // 定义打字机效果的内容
+        var text = "欢迎来到 Nebula Space";
+      
+        // 初始化索引
+        var index = 0;
+      
+        // 设置定时器，每隔一段时间输出一个字符
+        var typingTimer = setInterval(function() {
+          // 获取当前文本内容
+          var currentText = text.substring(0, index + 1);
+          // 将文本内容设置到元素中
+          titleElement.textContent = currentText;
+      
+          // 增加索引
+          index++;
+      
+          // 如果索引超过文本长度，清除定时器
+          if (index === text.length) {
+            clearInterval(typingTimer);
+          }
+        }, 100); // 每隔100毫秒输出一个字符
+      </script>

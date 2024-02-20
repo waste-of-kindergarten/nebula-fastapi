@@ -95,13 +95,13 @@ async def http_exception_handler(request,exc):
     return RedirectResponse("/404")
 
 
-async def validation_exception_handler(request, exc : RequestValidationError):
-    return RedirectResponse("/login")
+#async def validation_exception_handler(request, exc : RequestValidationError):
+#    return RedirectResponse("/login")
 
-app.add_exception_handler(RequestValidationError,validation_exception_handler)
+#app.add_exception_handler(RequestValidationError,validation_exception_handler)
 
 
-@app.get("/404",response_class=HTMLResponse)
+@app.route("/404",methods=["GET","POST"])
 async def _404(request : Request):
     return templates.TemplateResponse(request=request,name="404.html")
 
@@ -154,14 +154,31 @@ async def register_failure(request : Request):
 async def login(request : Request):
     return templates.TemplateResponse(request=request,name="login.html",context = {"info": None})
 
+@app.get("/changepassword",response_class=HTMLResponse)
+async def changepassword(request : Request):
+    return templates.TemplateResponse(request=request,name="changepassword.html")
 
+@app.post("/changepassword",dependencies=[Depends(cookie)])
+async def changepassword(changePasswordValidation : ChangePasswordValidation,session_data: SessionData = Depends(verifier)):
+    username = session_data.username 
+    password = UserService.fetchUserPassword(username)
+    if password == changePasswordValidation.password:
+        #print("enter")
+        #print(username,changePasswordValidation.password_new)
+        UserService.updateUserPassword(username,changePasswordValidation.password_new)
+    else:
+        return RedirectResponse("/changepassword/failure")
+
+@app.route("/changepassword/failure",methods=["GET","POST"])
+async def changepassword_failure(request:Request):
+    return templates.TemplateResponse(request=request,name="changepassword.html",context={"info":"原始密码错误"})
     
 @app.get("/home",response_class=HTMLResponse,dependencies=[Depends(cookie)])
 async def home(request : Request , session_data: SessionData = Depends(verifier)):
     if session_data.access == "permmit":
         return templates.TemplateResponse(request=request,name="home.html",context={ "username" : session_data.username, "p":["nav-link active","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white"]})
     else:
-        return RedirectResponse("/login/failure")
+        return RedirectResponse("/login/failure",status_code=200)
 
 @app.get("/home/person",response_class=HTMLResponse,dependencies=[Depends(cookie)])
 async def home_person(request : Request, session_data: SessionData = Depends(verifier)):
@@ -184,9 +201,6 @@ async def home_person(person : Person , request : Request, session_data : Sessio
         #print(newuser)
         euser = User_Entity(newuser)
         UserService.updateUser(euser)
-    
-
-
 
 @app.post("/login")
 async def login(user : Validation,response:Response):
@@ -199,8 +213,7 @@ async def login(user : Validation,response:Response):
     else: 
         return RedirectResponse("/login/failure")
 
-
-@app.get("/login/failure",response_class=HTMLResponse)
+@app.route("/login/failure",methods=["GET","POST"])
 async def login_failure(request : Request):        
     return templates.TemplateResponse(request=request,name="login.html",context = {"info":"账号密码错误"})
     
@@ -255,22 +268,19 @@ async def sendVerify(request : Request, username : Optional[str]):
 
 @app.post("/create_session/{username}/{password}")
 async def create_session(username: str, password : str ,response: Response):
-
     session = uuid4()
     data = SessionData(username=username)
-
     await backend.create(session, data)
     cookie.attach_to_response(response, session)
-
-
 
 @app.get("/whoami", dependencies=[Depends(cookie)])
 async def whoami(session_data: SessionData = Depends(verifier)):
     return session_data
 
-
 @app.get("/logout")
 async def del_session(response: Response, session_id: UUID = Depends(cookie)):
-    await backend.delete(session_id)
-    cookie.delete_from_response(response)
-    return RedirectResponse("/login")
+    try:
+        await backend.delete(session_id)
+        cookie.delete_from_response(response)
+    finally:
+        return RedirectResponse("/login")

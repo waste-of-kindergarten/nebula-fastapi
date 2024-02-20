@@ -90,10 +90,12 @@ class UserService(DataBaseService):
     @classmethod
     def updateUserPassword(cls,username,password_new):
         user = cls.select(conditions=((" == ",username),)).fetchone()
-        if not user:
+        if user:
             user = list(user)
+            #print(user)
             user[1] = password_new
             user = tuple(user)
+            #print(user)
             cls.update(values=user,conditions=((" == ",username),))
             return True 
         else:
