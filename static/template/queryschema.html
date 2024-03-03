@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Vis Network | Data | DOT Language</title>
+    <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background-color: rgb(123, 199, 0); width: 100%;">
+    {% include 'nav.html' %}
+    <!--p>Network supports the DOT language.</p-->
+    <div class="container-fluid mt-3" style="width: 100%;">
+        <div class="row">
+          <!-- Sidebar -->
+          {% include 'pannel.html' %}
+  
+          <div class="col-md-9" style="min-width: 70%;">
+    <div class="container-fluid mt-3" style="width: 100%;">
+        <div class="row">
+            
+                <div id="mynetwork" class="border border-secondary" style="height:auto;background-color: whitesmoke;"></div>
+            
+            
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<br><br>
+    {% include 'foot.html' %}
+    <!-- Bootstrap JS (if needed) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="text/javascript">
+        var container = document.getElementById("mynetwork");
+        var options = {
+            physics: {
+                stabilization: false,
+                barnesHut: {
+                    springLength: 200,
+                },
+            },
+            height: '600px',
+        };
+        var dot = `{{ data | safe }}`;
+        var data = vis.parseDOTNetwork(dot);
+        var network = new vis.Network(container, data, options);
+        var info = [];
+        network.on("click", function(params) {
+            var boardElement = document.getElementById("board");
+            if (params.nodes.length > 0) {
+                var clickedNodeId = params.nodes[0];
+                console.log("Node clicked: " + clickedNodeId);
+                
+                boardElement.innerText = infonode[clickedNodeId];
+                // 在这里执行您的 onclick 函数，可以根据 clickedNodeId 进行相应的操作
+            } else if (params.edges.length > 0) {
+                var clickedEdgeId = params.edges[0];
+                console.log("Edge clicked: " + clickedEdgeId);
+                boardElement.innerText = infoedge[clickedEdgeId];
+                // 在这里执行您的 onclick 函数，可以根据 clickedEdgeId 进行相应的操作
+            }
+        });
+
+        
+    </script>
+</body>
+</html>

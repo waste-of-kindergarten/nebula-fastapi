@@ -1,10 +1,11 @@
+from ast import literal_eval
 from fastapi import Depends, FastAPI, Request,Cookie , HTTPException, Response
 from fastapi.responses import HTMLResponse,RedirectResponse 
 from fastapi.staticfiles import StaticFiles 
 from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from typing import Union
+from typing import List, Union
 from typing_extensions import Annotated
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
 from fastapi_sessions.backends.implementations import InMemoryBackend
@@ -176,7 +177,7 @@ async def changepassword_failure(request:Request):
 @app.get("/home",response_class=HTMLResponse,dependencies=[Depends(cookie)])
 async def home(request : Request , session_data: SessionData = Depends(verifier)):
     if session_data.access == "permmit":
-        return templates.TemplateResponse(request=request,name="home.html",context={ "username" : session_data.username, "p":["nav-link active","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white"]})
+        return templates.TemplateResponse(request=request,name="home.html",context={ "username" : session_data.username, "p":["nav-link active","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white"]})
     else:
         return RedirectResponse("/login/failure",status_code=200)
 
@@ -284,3 +285,116 @@ async def del_session(response: Response, session_id: UUID = Depends(cookie)):
         cookie.delete_from_response(response)
     finally:
         return RedirectResponse("/login")
+    
+@app.get('/home/queryvertex',dependencies=[Depends(cookie)])
+async def queryvertex(request: Request,session_data: SessionData = Depends(verifier)):
+    return templates.TemplateResponse(request=request,name="queryvertex.html",context={ "username" : session_data.username,"p":["nav-link text-white","nav-link active","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white"]})
+
+
+example_body = '''{
+    "query_type":"tags",
+    "query_body":{
+        "body_name":"team",
+        "body_query":["NULL"]
+    }
+}'''
+
+import urllib3
+http = urllib3.PoolManager()
+
+class QueryBody(BaseModel):
+    body_name: str  
+    body_query: List[str]
+
+@app.post('/home/queryvertex',dependencies=[Depends(cookie)])
+async def queryvertex(request:Request,querybody:QueryBody,session_data: SessionData = Depends(verifier)):
+    print(querybody)
+    vertexquery = '''{
+    "query_type":"tags",
+    "query_body":{
+        "body_name":"%s",
+        "body_query":%s
+    }
+    }'''%(querybody.body_name,querybody.body_query)
+    vertexquery = vertexquery.replace("'",'"')
+    #print(vertexquery)
+    r = http.request('POST',"http://127.0.0.1:10000",body=vertexquery.encode('utf-8'),headers={'Content-Type':'application/json'})
+    #return r.data.decode()
+    demo = '''
+digraph  {
+node [shape=circle fontsize=16]
+edge [length=100, color=gray, fontcolor=black]
+
+%s
+}
+    '''%("\n".join(["%s [label=\"%s\"]"%(k,i[0][2:-1]) for k,i in enumerate(literal_eval(r.data.decode()))]))
+    print(demo)
+    return demo,[i[1] for i in literal_eval(r.data.decode())]
+
+@app.get('/home/queryedge',dependencies=[Depends(cookie)])
+async def queryedge(request:Request,session_data: SessionData = Depends(verifier)):
+    return templates.TemplateResponse(request=request,name="queryedge.html",context={ "username" : session_data.username,"p":["nav-link text-white","nav-link text-white","nav-link active","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white"]})
+
+@app.post('/home/queryedge',dependencies=[Depends(cookie)])
+async def queryedge(request: Request,querybody:QueryBody,session_data: SessionData = Depends(verifier)):
+    print(querybody)
+    edgequery = '''{
+    "query_type":"edges",
+    "query_body":{
+        "body_name":"%s",
+        "body_query":%s
+    }
+    }'''%(querybody.body_name,querybody.body_query)
+    edgequery = edgequery.replace("'",'"')
+    #print(edgequery)
+    r = http.request('POST',"http://127.0.0.1:10000",body=edgequery.encode('utf-8'),headers={'Content-Type':'application/json'})
+    #print(r.data.decode())
+    outnodeid,innodeid,allnode,edges = literal_eval(r.data.decode())
+    tempnode = innodeid + outnodeid
+    (nodeid1,allnode1) = ([],[])
+
+    for i in range(len(tempnode)):
+        if tempnode[i] not in nodeid1:
+            nodeid1.append(tempnode[i])
+            allnode1.append(allnode[i])
+
+    edgeindex = [] 
+    for i in range(len(edges)):
+        edgeindex.append((nodeid1.index(outnodeid[i]),nodeid1.index(innodeid[i])))
+    demo = '''
+digraph  {
+node [shape=circle fontsize=16]
+edge [length=100, color=gray, fontcolor=black]
+
+%s
+%s
+}
+    '''%("\n".join(["%s [label=%s]"%(k,i[2:-1]) for k,i in enumerate(nodeid1)]),"\n".join(["%s -> %s [label=\"%s\",id=%s]"%(edgeindex[k][0],edgeindex[k][1],querybody.body_name,k) for k,i in enumerate(edges)]))
+    print(demo)
+    return demo,allnode1,edges 
+
+@app.get('/home/playground',dependencies=[Depends(cookie)])
+async def playground(request:Request,session_data: SessionData = Depends(verifier)):
+    return templates.TemplateResponse(request=request,name="playground.html",context={"username" : session_data.username,"p":["nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link active"]})
+
+@app.get('/home/schema',dependencies=[Depends(cookie)])
+async def schema(request:Request,session_data: SessionData = Depends(verifier)):
+    query='''{
+    "query_type":"schema",
+    "query_body":{
+        "body_name":"",
+        "body_query":[]
+    }
+    }
+    '''
+    r = http.request('POST',"http://127.0.0.1:10000",body=query.encode('utf-8'),headers={'Content-Type':'application/json'})
+    data = literal_eval(r.data.decode())
+    demo = '''
+digraph  {
+node [shape=circle fontsize=16]
+edge [length=300, color=gray, fontcolor=black]
+
+%s
+    }'''%("\n\n".join(['%s -> %s [label=%s]'%(i[0],i[1],i[2]) for i in data]))
+    print(demo)
+    return templates.TemplateResponse(request=request,name="queryschema.html",context={"username" : session_data.username,"p":["nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link text-white","nav-link active","nav-link text-white"],"data" : demo})
